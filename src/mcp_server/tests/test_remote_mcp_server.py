@@ -7,6 +7,36 @@ from mcp.client.sse import sse_client
 from contextlib import asynccontextmanager
 
 
+def normalize_mcp_url(url: str) -> str:
+    """Normalize MCP server URL to ensure it has the correct endpoint path.
+    
+    Args:
+        url: The base URL or URL with endpoint
+        
+    Returns:
+        Normalized URL with proper endpoint path
+    """
+    url = url.rstrip('/')
+    
+    # If URL already has an MCP endpoint path, use it as-is with trailing slash
+    if url.endswith('/sse') or url.endswith('/mcp'):
+        return url + '/'
+    
+    # If URL already has the endpoint with trailing slash, return as-is
+    if url.endswith('/sse/') or url.endswith('/mcp/'):
+        return url
+    
+    # If URL doesn't have an endpoint path, assume SSE for Azure Container Apps
+    # Check if the URL ends with the domain (no path)
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    if not parsed.path or parsed.path == '/':
+        return url + '/sse/'
+    
+    # If there's some other path, add trailing slash if needed
+    return url + '/' if not url.endswith('/') else url
+
+
 class TestRemoteMCPServer:
     """Test the remote MCP server functionality via official MCP client."""
     
@@ -14,14 +44,14 @@ class TestRemoteMCPServer:
     def server_url(self):
         """Get the remote server URL from environment."""
         url = os.getenv("MCP_SERVER_ENDPOINT", "https://mcp.ashystone-fba1adc5.swedencentral.azurecontainerapps.io")
-        return url.rstrip('/')
+        return normalize_mcp_url(url)
     
     @asynccontextmanager
     async def mcp_session(self, server_url: str):
         """Create MCP client session for the remote server using SSE transport."""
         try:
-            # Use SSE transport for FastMCP servers running in SSE mode
-            async with sse_client(f"{server_url}/mcp") as (read, write):
+            # Use the full URL as provided (should include /sse or /mcp endpoint)
+            async with sse_client(server_url) as (read, write):
                 async with ClientSession(read, write) as session:
                     # Initialize the session
                     await session.initialize()
@@ -151,13 +181,13 @@ class TestRemoteMCPIntegration:
     def server_url(self):
         """Get the remote server URL from environment."""
         url = os.getenv("MCP_SERVER_ENDPOINT", "https://mcp.ashystone-fba1adc5.swedencentral.azurecontainerapps.io")
-        return url.rstrip('/')
+        return normalize_mcp_url(url)
     
     @asynccontextmanager
     async def mcp_session(self, server_url: str):
         """Create MCP client session for the remote server using SSE transport."""
         try:
-            async with sse_client(f"{server_url}/mcp") as (read, write):
+            async with sse_client(server_url) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     yield session
@@ -218,7 +248,12 @@ if __name__ == "__main__":
     print("Remote MCP Server Tests (Official MCP Client)")
     print("=" * 50)
     print("Set MCP_SERVER_ENDPOINT environment variable to your deployed server URL")
-    print("Example: $env:MCP_SERVER_ENDPOINT='https://mcp.your-domain.azurecontainerapps.io'")
+    print("The URL will be automatically normalized to include the correct MCP endpoint.")
+    print()
+    print("Examples:")
+    print("  $env:MCP_SERVER_ENDPOINT='https://mcp.your-domain.azurecontainerapps.io'")
+    print("  $env:MCP_SERVER_ENDPOINT='https://mcp.your-domain.azurecontainerapps.io/sse'")
+    print("  $env:MCP_SERVER_ENDPOINT='https://mcp.your-domain.azurecontainerapps.io/sse/'")
     print()
     
     pytest.main([__file__, "-v", "-s"])

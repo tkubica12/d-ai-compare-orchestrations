@@ -44,11 +44,21 @@ def get_user(user_id: str) -> Dict[str, Any]:
     Raises:
         ValueError: If user is not found
     """
-    user = data_store.get_user(user_id)
-    if not user:
-        raise ValueError(f"User with ID {user_id} not found")
+    logger.info(f"🔍 MCP TOOL CALL: get_user(user_id='{user_id}')")
     
-    return user.model_dump()
+    try:
+        user = data_store.get_user(user_id)
+        if not user:
+            error_msg = f"User with ID {user_id} not found"
+            logger.error(f"❌ MCP TOOL ERROR: get_user -> {error_msg}")
+            raise ValueError(error_msg)
+        
+        result = user.model_dump()
+        logger.info(f"✅ MCP TOOL RESPONSE: get_user -> {result}")
+        return result
+    except Exception as e:
+        logger.error(f"❌ MCP TOOL ERROR: get_user -> {str(e)}")
+        raise
 
 
 @mcp.tool()
@@ -64,11 +74,21 @@ def get_department_policy(department_id: str) -> Dict[str, Any]:
     Raises:
         ValueError: If department is not found
     """
-    department = data_store.get_department(department_id)
-    if not department:
-        raise ValueError(f"Department with ID {department_id} not found")
+    logger.info(f"🔍 MCP TOOL CALL: get_department_policy(department_id='{department_id}')")
     
-    return department.model_dump()
+    try:
+        department = data_store.get_department(department_id)
+        if not department:
+            error_msg = f"Department with ID {department_id} not found"
+            logger.error(f"❌ MCP TOOL ERROR: get_department_policy -> {error_msg}")
+            raise ValueError(error_msg)
+        
+        result = department.model_dump()
+        logger.info(f"✅ MCP TOOL RESPONSE: get_department_policy -> {result}")
+        return result
+    except Exception as e:
+        logger.error(f"❌ MCP TOOL ERROR: get_department_policy -> {str(e)}")
+        raise
 
 
 @mcp.tool()
@@ -84,11 +104,21 @@ def get_department_budget(department_id: str) -> Dict[str, Any]:
     Raises:
         ValueError: If department is not found
     """
-    budget = data_store.get_department_budget(department_id)
-    if not budget:
-        raise ValueError(f"Budget information for department {department_id} not found")
+    logger.info(f"🔍 MCP TOOL CALL: get_department_budget(department_id='{department_id}')")
     
-    return budget.model_dump()
+    try:
+        budget = data_store.get_department_budget(department_id)
+        if not budget:
+            error_msg = f"Budget information for department {department_id} not found"
+            logger.error(f"❌ MCP TOOL ERROR: get_department_budget -> {error_msg}")
+            raise ValueError(error_msg)
+        
+        result = budget.model_dump()
+        logger.info(f"✅ MCP TOOL RESPONSE: get_department_budget -> {result}")
+        return result
+    except Exception as e:
+        logger.error(f"❌ MCP TOOL ERROR: get_department_budget -> {str(e)}")
+        raise
 
 
 @mcp.tool()
@@ -101,8 +131,16 @@ def search_products(name: str) -> List[Dict[str, Any]]:
     Returns:
         List of matching products with their details
     """
-    products = data_store.search_products(name)
-    return [product.model_dump() for product in products]
+    logger.info(f"🔍 MCP TOOL CALL: search_products(name='{name}')")
+    
+    try:
+        products = data_store.search_products(name)
+        result = [product.model_dump() for product in products]
+        logger.info(f"✅ MCP TOOL RESPONSE: search_products -> Found {len(result)} products")
+        return result
+    except Exception as e:
+        logger.error(f"❌ MCP TOOL ERROR: search_products -> {str(e)}")
+        raise
 
 
 @mcp.tool()
@@ -119,11 +157,21 @@ def get_product_details(product_id: str, supplier_id: str = None) -> List[Dict[s
     Raises:
         ValueError: If product is not found
     """
-    details = data_store.get_product_details(product_id, supplier_id)
-    if not details:
-        raise ValueError(f"No product details found for product {product_id}")
+    logger.info(f"🔍 MCP TOOL CALL: get_product_details(product_id='{product_id}', supplier_id='{supplier_id}')")
     
-    return [detail.model_dump() for detail in details]
+    try:
+        details = data_store.get_product_details(product_id, supplier_id)
+        if not details:
+            error_msg = f"No product details found for product {product_id}"
+            logger.error(f"❌ MCP TOOL ERROR: get_product_details -> {error_msg}")
+            raise ValueError(error_msg)
+        
+        result = [detail.model_dump() for detail in details]
+        logger.info(f"✅ MCP TOOL RESPONSE: get_product_details -> Found {len(result)} supplier options")
+        return result
+    except Exception as e:
+        logger.error(f"❌ MCP TOOL ERROR: get_product_details -> {str(e)}")
+        raise
 
 
 @mcp.tool()
@@ -139,11 +187,21 @@ def get_supplier_info(supplier_id: str) -> Dict[str, Any]:
     Raises:
         ValueError: If supplier is not found
     """
-    supplier = data_store.get_supplier(supplier_id)
-    if not supplier:
-        raise ValueError(f"Supplier with ID {supplier_id} not found")
+    logger.info(f"🔍 MCP TOOL CALL: get_supplier_info(supplier_id='{supplier_id}')")
     
-    return supplier.model_dump()
+    try:
+        supplier = data_store.get_supplier(supplier_id)
+        if not supplier:
+            error_msg = f"Supplier with ID {supplier_id} not found"
+            logger.error(f"❌ MCP TOOL ERROR: get_supplier_info -> {error_msg}")
+            raise ValueError(error_msg)
+        
+        result = supplier.model_dump()
+        logger.info(f"✅ MCP TOOL RESPONSE: get_supplier_info -> {result}")
+        return result
+    except Exception as e:
+        logger.error(f"❌ MCP TOOL ERROR: get_supplier_info -> {str(e)}")
+        raise
 
 
 @mcp.tool()
@@ -160,8 +218,16 @@ def create_audit_record(user_id: str, action: str, details: Dict[str, Any],
     Returns:
         The created audit record
     """
-    record = data_store.create_audit_record(user_id, action, details, decision_reasoning)
-    return record.model_dump()
+    logger.info(f"🔍 MCP TOOL CALL: create_audit_record(user_id='{user_id}', action='{action}')")
+    
+    try:
+        record = data_store.create_audit_record(user_id, action, details, decision_reasoning)
+        result = record.model_dump()
+        logger.info(f"✅ MCP TOOL RESPONSE: create_audit_record -> Created audit record with ID {result.get('id', 'unknown')}")
+        return result
+    except Exception as e:
+        logger.error(f"❌ MCP TOOL ERROR: create_audit_record -> {str(e)}")
+        raise
 
 
 if __name__ == "__main__":

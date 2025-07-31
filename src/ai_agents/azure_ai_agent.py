@@ -133,6 +133,35 @@ class AzureAIFoundryAgent:
         if mcp_tool_called:
             self.logger.debug(f"MCP Tool: {mcp_tool_called}({mcp_tool_params})")
     
+    def _normalize_mcp_url(self, url: str) -> str:
+        """Normalize MCP server URL to ensure it has the correct endpoint path.
+        
+        Args:
+            url: The base URL or URL with endpoint
+            
+        Returns:
+            Normalized URL with proper endpoint path for Azure AI Foundry (SSE)
+        """
+        from urllib.parse import urlparse
+        
+        url = url.rstrip('/')
+        
+        # If URL already has an MCP endpoint path, use it as-is with trailing slash
+        if url.endswith('/sse') or url.endswith('/mcp'):
+            return url + '/'
+        
+        # If URL already has the endpoint with trailing slash, return as-is
+        if url.endswith('/sse/') or url.endswith('/mcp/'):
+            return url
+        
+        # If URL doesn't have an endpoint path, add SSE for Azure AI Foundry
+        parsed = urlparse(url)
+        if not parsed.path or parsed.path == '/':
+            return url + '/sse/'
+        
+        # If there's some other path, add trailing slash if needed
+        return url + '/' if not url.endswith('/') else url
+
     def _create_mcp_tool(self) -> McpTool:
         """
         Create Azure AI Foundry native MCP tool.
@@ -141,15 +170,19 @@ class AzureAIFoundryAgent:
             McpTool instance configured for the business data server
         """
         mcp_url = os.getenv("MCP_SERVER_URL", "https://mcp.ashystone-fba1adc5.swedencentral.azurecontainerapps.io")
+        normalized_url = self._normalize_mcp_url(mcp_url)
         
         # Create MCP tool with native Azure AI Foundry support
         mcp_tool = McpTool(
             server_label="business_data_server",
-            server_url=mcp_url,
+            server_url=normalized_url,
             allowed_tools=[]  # Allow all tools by default
         )
         
-        self.logger.info(f"Created MCP tool for server: {mcp_url}")
+        # Disable approval requirement for automated execution (as shown in docs)
+        mcp_tool.set_approval_mode("never")
+        
+        self.logger.info(f"Created MCP tool for server: {normalized_url}")
         return mcp_tool
     
     def _create_agent_instructions(self) -> str:
@@ -213,12 +246,12 @@ Be methodical, explain your reasoning step by step, and provide helpful suggesti
             )
             
             with self.project_client:
-                # Create agent with MCP tool
+                # Create agent with native MCP tool support following official documentation
                 agent = self.project_client.agents.create_agent(
                     model=os.getenv("MODEL_DEPLOYMENT_NAME"),
                     name="purchase-order-agent",
                     instructions=self._create_agent_instructions(),
-                    tools=mcp_tool.definitions
+                    tools=mcp_tool.definitions  # Use mcp_tool.definitions as per official docs
                 )
                 
                 self.agent_id = agent.id
@@ -244,22 +277,11 @@ Be methodical, explain your reasoning step by step, and provide helpful suggesti
                         reasoning="Started conversation thread with user request"
                     )
                     
-                    # Configure MCP tool approval mode before running
-                    mcp_tool.set_approval_mode("never")
-                    
-                    # Create tool resources with proper MCP configuration
-                    tool_resources = {
-                        "business_data_server": {
-                            "headers": {},
-                            "require_approval": "never"
-                        }
-                    }
-                    
-                    # Run the agent with proper MCP tool resources
+                    # Run the agent with MCP tool resources (following turnkey integration pattern)
                     run = self.project_client.agents.runs.create_and_process(
                         thread_id=thread.id,
                         agent_id=agent.id,
-                        tool_resources=tool_resources
+                        tool_resources=mcp_tool.resources  # Include MCP tool resources
                     )
                     
                     self._add_step(

@@ -128,5 +128,5 @@ This server is designed to run in Azure Container Apps for production use:
 # Deploy to Azure Container Apps
 az group create -n d-ai-compare-orchestrations -l swedencentral
 az containerapp env create -n mcp-env -g d-ai-compare-orchestrations -l swedencentral
-az containerapp create -n mcp -g d-ai-compare-orchestrations -i ghcr.io/tkubica12/d-ai-compare-orchestrations/mcp-server:latest --target-port 8000 --ingress external --environment mcp-env --min-replicas 1
+az containerapp create -n mcp -g d-ai-compare-orchestrations -i ghcr.io/tkubica12/d-ai-compare-orchestrations/mcp-server:latest --target-port 8000 --ingress external --environment mcp-env --min-replicas 1 --env-vars MCP_TRANSPORT=sse
 ```

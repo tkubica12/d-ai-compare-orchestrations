@@ -30,11 +30,11 @@ def main():
         agent = AzureAIFoundryAgent()
         print("   ✓ Agent initialized successfully")
         
-        # Test a simple purchase request
+        # Test a simple purchase request with valid user ID
         print("2. Testing basic purchase request...")
         result = agent.process_purchase_request(
-            user_id="john.doe@company.com",
-            product_request="I need to order 10 units of product ID 'PRD001'"
+            user_id="alice-001",  # Use valid user ID from our test data
+            product_request="I need to order 3 high-end laptops for our development team"
         )
         
         print("3. Agent Response:")
