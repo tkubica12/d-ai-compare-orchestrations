@@ -1,0 +1,62 @@
+[
+  {
+    "productId": "LAPTOP-001",
+    "name": "Business Laptop",
+    "category": "electronics",
+    "description": "High-performance laptop for business use",
+    "specifications": {
+      "processor": "Intel i7",
+      "memory": "16GB RAM",
+      "storage": "512GB SSD",
+      "display": "15.6 inch"
+    }
+  },
+  {
+    "productId": "CHAIR-001", 
+    "name": "Ergonomic Office Chair",
+    "category": "office-supplies",
+    "description": "Comfortable ergonomic office chair with lumbar support",
+    "specifications": {
+      "material": "Mesh and fabric",
+      "adjustable": "Height, armrests, lumbar",
+      "weight_capacity": "300 lbs",
+      "warranty": "5 years"
+    }
+  },
+  {
+    "productId": "BROCHURE-001",
+    "name": "Marketing Brochures",
+    "category": "marketing-materials", 
+    "description": "Professional tri-fold marketing brochures",
+    "specifications": {
+      "paper": "Glossy 300gsm",
+      "size": "8.5x11 tri-fold",
+      "colors": "Full color CMYK",
+      "finish": "UV coating"
+    }
+  },
+  {
+    "productId": "SOFTWARE-001",
+    "name": "Project Management Software License",
+    "category": "software",
+    "description": "Annual license for project management software",
+    "specifications": {
+      "license_type": "Annual subscription",
+      "users": "Up to 10 users",
+      "features": "Task management, reporting, integrations",
+      "support": "24/7 customer support"
+    }
+  },
+  {
+    "productId": "NOTEBOOK-001",
+    "name": "Professional Notebooks",
+    "category": "office-supplies",
+    "description": "High-quality lined notebooks for professional use", 
+    "specifications": {
+      "pages": "200 pages",
+      "paper": "80gsm lined paper",
+      "binding": "Spiral bound",
+      "cover": "Hardcover"
+    }
+  }
+]

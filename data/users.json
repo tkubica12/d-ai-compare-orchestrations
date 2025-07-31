@@ -1,0 +1,23 @@
+[
+  {
+    "userId": "alice-001",
+    "name": "Alice Johnson",
+    "email": "alice.johnson@company.com",
+    "departmentId": "IT",
+    "role": "Senior Developer"
+  },
+  {
+    "userId": "bob-002", 
+    "name": "Bob Smith",
+    "email": "bob.smith@company.com",
+    "departmentId": "HR",
+    "role": "HR Manager"
+  },
+  {
+    "userId": "carol-003",
+    "name": "Carol Williams",
+    "email": "carol.williams@company.com", 
+    "departmentId": "MARKETING",
+    "role": "Marketing Coordinator"
+  }
+]
