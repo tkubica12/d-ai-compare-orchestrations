@@ -32,6 +32,39 @@ docker build -t purchase-order-mcp .
 docker run -p 8000:8000 purchase-order-mcp
 ```
 
+## Testing
+
+### Local Testing
+
+```bash
+# Run local unit tests
+uv run pytest tests/test_mcp_server.py -v
+```
+
+### Remote Testing (Azure Container Apps)
+
+Test your deployed MCP server using the official MCP Python SDK client:
+
+```bash
+# Install dev dependencies (includes official MCP client)
+uv sync --extra dev
+
+# Test against deployed server using the test runner
+python run_remote_tests.py https://mcp.YOUR_DOMAIN.azurecontainerapps.io
+
+# Or set environment variable and run pytest directly
+$env:MCP_SERVER_ENDPOINT="https://mcp.YOUR_DOMAIN.azurecontainerapps.io"
+uv run pytest tests/test_remote_mcp_server.py -v
+```
+
+The remote tests use the **official MCP Python SDK client** and verify:
+- MCP protocol compliance and tool availability
+- All 7 business tools functionality via MCP Streamable HTTP transport  
+- Complete purchase workflow integration
+- Proper MCP session management and error handling
+
+**Note:** The remote tests use MCP's SSE (Server-Sent Events) transport, not simple HTTP requests. This ensures proper protocol compliance and realistic testing of your deployed MCP server.
+
 ## Tools Available
 
 ### `get_user(user_id: str)`
@@ -78,15 +111,8 @@ The server enforces business rules through its data structure:
 This server is designed to run in Azure Container Apps for production use:
 
 ```bash
-# Build and push to Azure Container Registry
-az acr build --registry myregistry --image purchase-order-mcp:latest .
-
 # Deploy to Azure Container Apps
-az containerapp create \
-  --name purchase-order-mcp \
-  --resource-group mygroup \
-  --environment myenv \
-  --image myregistry.azurecr.io/purchase-order-mcp:latest \
-  --target-port 8000 \
-  --ingress external
+az group create -n d-ai-compare-orchestrations -l swedencentral
+az containerapp env create -n mcp-env -g d-ai-compare-orchestrations -l swedencentral
+az containerapp create -n mcp -g d-ai-compare-orchestrations -i ghcr.io/tkubica12/d-ai-compare-orchestrations/mcp-server:latest --target-port 8000 --ingress external --environment mcp-env --min-replicas 1
 ```

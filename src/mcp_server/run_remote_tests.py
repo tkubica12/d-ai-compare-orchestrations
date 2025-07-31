@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+"""
+Script to run remote MCP server tests against deployed Azure Container Apps instance.
+Uses working FastMCP client that handles FastMCP Streamable HTTP protocol correctly.
+
+Usage:
+    python run_remote_tests.py <server-url>
+
+Example:
+    python run_remote_tests.py https://mcp.ashystone-fba1adc5.swedencentral.azurecontainerapps.io
+"""
+
+import asyncio
+import sys
+from urllib.parse import urlparse
+from tests.fastmcp_client import FastMCPClient
+
+
+def validate_url(url: str) -> bool:
+    """Validate that the URL is properly formatted."""
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except Exception:
+        return False
+
+
+async def test_business_workflow(client: FastMCPClient):
+    """Test the complete business workflow."""
+    print("🔄 Testing complete business workflow...")
+    
+    # Step 1: Get user information
+    print("   1. Getting user information...")
+    user_result = await client.call_tool("get_user", {"user_id": "alice-001"})
+    print(f"   ✅ User: {user_result.content[0]['text']}")
+    
+    # Step 2: Get department policy
+    print("   2. Getting department policy...")
+    policy_result = await client.call_tool("get_department_policy", {"department_id": "IT"})
+    print(f"   ✅ Policy: {policy_result.content[0]['text'][:100]}...")
+    
+    # Step 3: Get department budget
+    print("   3. Getting department budget...")
+    budget_result = await client.call_tool("get_department_budget", {"department_id": "IT"})
+    print(f"   ✅ Budget: {budget_result.content[0]['text']}")
+    
+    # Step 4: Search for products
+    print("   4. Searching for products...")
+    search_result = await client.call_tool("search_products", {"name": "laptop"})
+    print(f"   ✅ Found products: {search_result.content[0]['text'][:100]}...")
+    
+    # Step 5: Get product details
+    print("   5. Getting product details...")
+    details_result = await client.call_tool("get_product_details", {"product_id": "LAPTOP-001"})
+    print(f"   ✅ Product details: {details_result.content[0]['text'][:100]}...")
+    
+    # Step 6: Get supplier info
+    print("   6. Getting supplier information...")
+    supplier_result = await client.call_tool("get_supplier_info", {"supplier_id": "TECHCORP-001"})
+    print(f"   ✅ Supplier: {supplier_result.content[0]['text']}")
+    
+    # Step 7: Create audit record
+    print("   7. Creating audit record...")
+    audit_result = await client.call_tool("create_audit_record", {
+        "user_id": "alice-001",
+        "action": "purchase_request",
+        "details": {
+            "product_id": "LAPTOP-001",
+            "supplier_id": "TECHCORP-001",
+            "amount": 1200
+        },
+        "decision_reasoning": "Laptop needed for development work"
+    })
+    print(f"   ✅ Audit record: {audit_result.content[0]['text']}")
+    
+    print("\n🎉 Complete business workflow test successful!")
+
+
+async def run_tests(server_url: str):
+    """Run all remote tests against the MCP server."""
+    mcp_url = server_url.rstrip('/') + '/mcp'
+    
+    print(f"🚀 Testing MCP server at: {mcp_url}")
+    print("Using FastMCP client with correct Streamable HTTP headers")
+    print("=" * 60)
+    
+    try:
+        async with FastMCPClient(mcp_url) as client:
+            # Test 1: List tools
+            print("\n🔄 Test 1: Listing available tools...")
+            tools = await client.list_tools()
+            print(f"✅ Found {len(tools)} tools:")
+            for tool in tools:
+                print(f"   - {tool.name}")
+            
+            # Test 2: Individual tool tests
+            print("\n🔄 Test 2: Testing individual tools...")
+            
+            # Test get_user
+            result = await client.call_tool("get_user", {"user_id": "alice-001"})
+            print(f"✅ get_user: {result.content[0]['text']}")
+            
+            # Test search_products
+            result = await client.call_tool("search_products", {"name": "laptop"})
+            print("✅ search_products: Found products")
+            
+            # Test 3: Complete business workflow
+            print("\n🔄 Test 3: Complete business workflow...")
+            await test_business_workflow(client)
+            
+            print("\n" + "=" * 60)
+            print("✅ All remote MCP tests passed!")
+            print("🎉 Your deployed MCP server is working correctly!")
+            
+    except Exception as e:
+        print(f"\n❌ Remote tests failed: {e}")
+        print("💡 Check that your server supports FastMCP Streamable HTTP transport")
+        print("💡 Verify the server URL is correct and accessible")
+        sys.exit(1)
+
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python run_remote_tests.py <server-url>")
+        print("Example: python run_remote_tests.py https://mcp.ashystone-fba1adc5.swedencentral.azurecontainerapps.io")
+        print()
+        print("Note: This script uses a working FastMCP client")
+        print("Make sure your server supports FastMCP Streamable HTTP transport")
+        sys.exit(1)
+    
+    server_url = sys.argv[1].rstrip('/')
+    
+    if not validate_url(server_url):
+        print(f"Error: Invalid URL format: {server_url}")
+        sys.exit(1)
+    
+    # Run the async tests
+    asyncio.run(run_tests(server_url))
+
+
+if __name__ == "__main__":
+    main()

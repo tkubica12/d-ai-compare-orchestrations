@@ -18,7 +18,8 @@ license = {text = "MIT"}
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.21.0",
-    "httpx>=0.25.0",
+    "mcp>=1.12.0",  # Official MCP Python SDK for client testing
+    "httpx>=0.25.0",  # For FastMCP client implementation in tests
 ]
 
 [tool.pytest.ini_options]
