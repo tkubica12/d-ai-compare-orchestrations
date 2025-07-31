@@ -1,0 +1,31 @@
+[project]
+name = "ai-agents"
+version = "0.1.0"
+description = "AI orchestration agents for comparing different approaches to purchase order processing"
+authors = [
+    {name = "Author", email = "author@example.com"}
+]
+dependencies = [
+    "azure-ai-projects>=1.0.0",
+    "azure-ai-agents>=1.1.0b4",
+    "azure-identity>=1.15.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.25.0",
+    "pydantic>=2.0.0",
+]
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]

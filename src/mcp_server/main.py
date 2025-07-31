@@ -171,7 +171,12 @@ if __name__ == "__main__":
     
     # Get port from environment variable or default to 8000
     port = int(os.getenv("PORT", "8000"))
-    logger.info(f"Starting HTTP server on port {port}")
     
-    # Use FastMCP's run method with streamable-http transport
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=port)
+    # Get transport mode from environment variable
+    # Azure AI Foundry uses SSE, modern clients use streamable-http
+    transport = os.getenv("MCP_TRANSPORT", "streamable-http")
+    
+    logger.info(f"Starting HTTP server on port {port} with transport: {transport}")
+    
+    # Run with specified transport mode
+    mcp.run(transport=transport, host="0.0.0.0", port=port)

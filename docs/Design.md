@@ -113,8 +113,32 @@ The LLM will need to intelligently match search terms to product names and descr
 - MCP server functionality
 - Error handling scenarios
 
+### AI Agent Testing Approach
+Since AI output is non-deterministic, traditional unit testing with assertions is not suitable. Instead, we use:
+
+#### Demonstration-Based Testing
+- **Process Validation**: Verify agents follow logical reasoning steps
+- **Tool Usage Analysis**: Ensure appropriate MCP tools are called in sequence
+- **Outcome Pattern Matching**: Check for expected keywords and decision patterns
+- **Execution Logging**: Detailed tracking of reasoning process and tool calls
+- **Performance Metrics**: Measure execution time, steps, and token usage
+
+#### Test Script Format
+Rather than pytest with assertions, we use demonstration scripts that:
+- Run business scenarios and log detailed execution traces
+- Analyze agent behavior patterns (e.g., "Did it check policies?")
+- Generate structured reports with metrics for comparison
+- Save results to JSON for further analysis
+- Provide human-readable summaries of agent performance
+
+#### Evaluation Criteria
+- **Correctness**: Does the agent reach appropriate conclusions?
+- **Completeness**: Are all necessary steps performed?
+- **Efficiency**: Optimal number of steps and tool calls?
+- **Reasoning Quality**: Clear explanations and logical flow?
+
 ### Business Scenario Tests
-Located in `tests/test_scenarios/test_business_cases.py`:
+Located in `src/ai_agents/tests/demo_azure_ai_agent.py`:
 
 1. **Unauthorized Product Test**
    - User: Bob (HR), Product: Laptop (Electronics)
@@ -131,6 +155,10 @@ Located in `tests/test_scenarios/test_business_cases.py`:
 4. **Equivalent Product Test**
    - User: Alice (IT), Search: "Computer"
    - Expected: Finds "Laptop" as equivalent
+
+5. **Successful Purchase Test**
+   - User: Carol (Marketing), Product: Professional Notebooks
+   - Expected: Complete workflow with audit trail
 
 ### Change Case Testing
 Test cases for adaptation scenarios:

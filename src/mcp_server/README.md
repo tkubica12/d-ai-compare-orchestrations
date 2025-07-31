@@ -18,9 +18,20 @@ This MCP server provides business data and tools for internal purchase order pro
 # Install dependencies
 uv sync
 
-# Run the server
+# Run the server (default: streamable-http transport)
 uv run python main.py
+
+# Run with SSE transport (for Azure AI Foundry compatibility)
+MCP_TRANSPORT=sse uv run python main.py
+
+# Run with custom port
+PORT=9000 uv run python main.py
 ```
+
+### Environment Variables
+
+- `PORT`: Server port (default: 8000)
+- `MCP_TRANSPORT`: Transport protocol - `streamable-http` (default) or `sse` (for Azure AI Foundry)
 
 ### Docker Deployment
 
@@ -28,8 +39,11 @@ uv run python main.py
 # Build the container
 docker build -t purchase-order-mcp .
 
-# Run the container
+# Run with streamable-http (default)
 docker run -p 8000:8000 purchase-order-mcp
+
+# Run with SSE transport for Azure AI Foundry
+docker run -p 8000:8000 -e MCP_TRANSPORT=sse purchase-order-mcp
 ```
 
 ## Testing

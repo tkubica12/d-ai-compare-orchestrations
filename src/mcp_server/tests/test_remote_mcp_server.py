@@ -3,7 +3,7 @@
 import pytest
 import os
 from mcp.client.session import ClientSession
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.sse import sse_client
 from contextlib import asynccontextmanager
 
 
@@ -18,10 +18,10 @@ class TestRemoteMCPServer:
     
     @asynccontextmanager
     async def mcp_session(self, server_url: str):
-        """Create MCP client session for the remote server."""
+        """Create MCP client session for the remote server using SSE transport."""
         try:
-            # Use Streamable HTTP transport for FastMCP servers
-            async with streamablehttp_client(f"{server_url}/mcp") as (read, write, get_session_id):
+            # Use SSE transport for FastMCP servers running in SSE mode
+            async with sse_client(f"{server_url}/mcp") as (read, write):
                 async with ClientSession(read, write) as session:
                     # Initialize the session
                     await session.initialize()
@@ -155,9 +155,9 @@ class TestRemoteMCPIntegration:
     
     @asynccontextmanager
     async def mcp_session(self, server_url: str):
-        """Create MCP client session for the remote server."""
+        """Create MCP client session for the remote server using SSE transport."""
         try:
-            async with streamablehttp_client(f"{server_url}/mcp") as (read, write, get_session_id):
+            async with sse_client(f"{server_url}/mcp") as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     yield session
@@ -195,7 +195,12 @@ class TestRemoteMCPIntegration:
             assert details_result.content is not None
             print("  ✅ Product details retrieved")
             
-            # 6. Create audit record
+            # 6. Get supplier information
+            supplier_result = await session.call_tool("get_supplier_info", {"supplier_id": "TECHCORP-001"})
+            assert supplier_result.content is not None
+            print("  ✅ Supplier information retrieved")
+            
+            # 7. Create audit record
             audit_result = await session.call_tool("create_audit_record", {
                 "user_id": "alice-001",
                 "action": "workflow_test",
