@@ -1,0 +1,32 @@
+[
+  {
+    "departmentId": "IT",
+    "name": "Information Technology",
+    "allowedCategories": ["electronics", "software"],
+    "purchaseStrategy": "fastest",
+    "monthlyBudget": 50000.00,
+    "currentSpent": 12500.00,
+    "approvalLimit": 10000.00,
+    "description": "IT department focused on technology infrastructure and software solutions"
+  },
+  {
+    "departmentId": "HR", 
+    "name": "Human Resources",
+    "allowedCategories": ["office-supplies"],
+    "purchaseStrategy": "cheapest",
+    "monthlyBudget": 5000.00,
+    "currentSpent": 1200.00,
+    "approvalLimit": 1000.00,
+    "description": "HR department managing employee resources and office supplies"
+  },
+  {
+    "departmentId": "MARKETING",
+    "name": "Marketing",
+    "allowedCategories": ["marketing-materials", "office-supplies"],
+    "purchaseStrategy": "cheapest", 
+    "monthlyBudget": 15000.00,
+    "currentSpent": 3500.00,
+    "approvalLimit": 2500.00,
+    "description": "Marketing department handling promotional materials and campaigns"
+  }
+]
