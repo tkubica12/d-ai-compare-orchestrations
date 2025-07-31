@@ -173,27 +173,10 @@ class DataStore:
         search_term = name.lower()
         results = []
         
-        # First, direct name and description search
         for product in self.products.values():
             if (search_term in product.name.lower() or 
                 search_term in product.description.lower()):
                 results.append(product)
-        
-        # Handle equivalent product scenarios
-        equivalent_mappings = {
-            "computer": ["laptop", "pc", "workstation"],
-            "chair": ["chair", "seat"],
-            "printer paper": ["notebook", "paper"],
-            "paper": ["notebook", "paper"]
-        }
-        
-        if search_term in equivalent_mappings:
-            for equivalent_term in equivalent_mappings[search_term]:
-                for product in self.products.values():
-                    if (equivalent_term in product.name.lower() or 
-                        equivalent_term in product.description.lower()):
-                        if product not in results:  # Avoid duplicates
-                            results.append(product)
         
         return results
     

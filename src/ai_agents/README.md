@@ -46,11 +46,44 @@ print(f"Execution time: {result.execution_time_seconds:.2f}s")
 ```
 
 #### Demo Script
-Run the comprehensive business scenario tests:
+Run the comprehensive business scenario tests with detailed markdown reports:
 ```bash
 cd src/ai_agents
 uv sync
-uv run python tests/demo_azure_ai_agent.py
+
+# Run all scenarios with detailed markdown logging
+uv run python tests/demo_azure_ai_agent_markdown.py
+
+# Or specify the agent mode (future: langchain, semantickernel)
+uv run python tests/demo_azure_ai_agent_markdown.py --mode azureai
+```
+
+This will generate detailed markdown reports in the `results/` directory with the naming pattern:
+- `azureai-scenario1.md` - Unauthorized Product Test
+- `azureai-scenario2.md` - Budget Exceeded Test  
+- `azureai-scenario3.md` - Multiple Suppliers Test
+- `azureai-scenario4.md` - Equivalent Product Test
+- `azureai-scenario5.md` - Successful Purchase Test
+
+Each report includes:
+- **Executive Summary** with final recommendation and reasoning
+- **Detailed Execution Log** showing each step with timestamps
+- **MCP Tools Usage** with parameters and responses  
+- **Performance Metrics** including execution time and step counts
+- **Technical Details** and future token usage tracking
+
+### Report Structure
+
+Each markdown report provides comprehensive visibility into:
+
+```markdown
+# Scenario X: Description - MODE
+- Execution metadata (timestamp, user, request, status)
+- Executive summary with final recommendation
+- Step-by-step execution log with timestamps
+- MCP tool calls with parameters and responses
+- Performance metrics and technical details
+- Token usage (planned for future implementation)
 ```
 
 ### Testing Approach
@@ -62,8 +95,49 @@ Since AI output is non-deterministic, our testing approach focuses on:
 - **Outcome Analysis**: Checking for expected keywords and patterns
 - **Execution Logging**: Detailed tracking of reasoning process
 - **Metrics Collection**: Performance and behavior statistics
+- **Markdown Reports**: Human-readable execution traces with tool interactions
 
-Rather than strict assertions, tests demonstrate agent behavior and log outcomes for human evaluation.
+Rather than strict assertions, tests demonstrate agent behavior and generate detailed markdown reports for human evaluation and comparison between different agent implementations.
+
+### Results Analysis
+
+The markdown reports enable comprehensive analysis:
+
+1. **Cross-Mode Comparison**: Compare `azureai-scenario1.md` vs `langchain-scenario1.md` vs `semantickernel-scenario1.md`
+2. **Tool Usage Patterns**: Analyze which MCP tools each mode uses and how
+3. **Performance Metrics**: Compare execution times and step counts across modes
+4. **Decision Quality**: Evaluate recommendation quality and reasoning depth
+5. **Error Handling**: Review how each mode handles edge cases and errors
+
+#### Troubleshooting
+- **Connection Issues**: Verify MCP server URL and network connectivity
+- **Azure Auth**: Run `az login` and check `.env` configuration
+- **Empty Results**: Check agent permissions and model deployment access
+- **Slow Performance**: Agent creation adds 10-20 seconds overhead per scenario
+
+### Running Tests
+
+```bash
+# Quick start - run all scenarios with markdown reports
+cd src/ai_agents
+uv sync
+uv run python tests/demo_azure_ai_agent_markdown.py --mode azureai
+
+# View results in results/ directory
+ls results/
+# azureai-scenario1.md, azureai-scenario2.md, etc.
+```
+
+#### Test Configuration
+- Ensure MCP server is running: `https://mcp.ashystone-fba1adc5.swedencentral.azurecontainerapps.io/sse/`
+- Configure Azure AI credentials in `.env` file
+- Use `--mode azureai` (future: `langchain`, `semantickernel`)
+
+#### Expected Results
+- **Scenario 1**: Should fail gracefully (unauthorized product)
+- **Scenarios 2-5**: Should complete successfully with recommendations
+- **Execution time**: 15-45 seconds per scenario
+- **Steps**: 7-12 actions including agent lifecycle management
 
 ### Business Scenarios
 
